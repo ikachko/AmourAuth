@@ -1,5 +1,7 @@
 from mongoengine import *
-from credentials import username, password
+from credentials import username, password, secret_key
+import datetime
+import jwt
 
 # connect('mongodb://%s:%s@ds121636.mlab.com:21636/amour_auth' % (username, password))
 
@@ -22,6 +24,22 @@ class User(Document):
     password = StringField(max_length=500, required=True)
     name = StringField(max_length=200, required=True)
     surname = StringField(max_length=200, required=True)
+
+    @staticmethod
+    def encode_auth_token(login):
+        try:
+            payload = {
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
+                'iat': datetime.datetime.utcnow(),
+                'sub': login
+            }
+            return jwt.encode(
+                payload,
+                secret_key,
+                algorithm='HS256'
+            )
+        except Exception as e:
+            return e
 
 
 # if __name__ == "__main__":
