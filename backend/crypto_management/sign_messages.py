@@ -2,6 +2,8 @@ import hashlib
 import codecs
 import ecdsa
 import time
+import binascii
+
 from Crypto.Hash import keccak
 
 
@@ -135,5 +137,8 @@ class SignFormer:
     def form_array_for_contract(self):
         if self.sign_count == len(self.users) and False not in [self.already_signed[login] for login in self.users]:
             int_signs = [int(sign, 16) for sign in self.signs]
-            return self.addresses, int_signs, self.timestamp
+            address_concat = ''.join(self.addresses)
+            address_hash = hashlib.sha256(binascii.unhexlify(address_concat)).hexdigest()
+            int_address = int(address_hash, 16)
+            return int_address, self.addresses, int_signs, self.timestamp
 
