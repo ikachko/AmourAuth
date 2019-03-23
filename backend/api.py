@@ -27,14 +27,14 @@ class Users(Resource):
             user = User(
                 login=user_data['login'],
                 passport_id=user_data['passport_id'],
-                password=user_data['password'],
+                password=User.hash_password(user_data['password']),
                 email=user_data['email'],
                 name=user_data['name'],
                 surname=user_data['surname'])
             user.save()
         except Exception as e:
             return Response(
-                response=json.dumps({'error': e}),
+                response=json.dumps({'error': str(e)}),
                 status=400,
                 mimetype='application/json'
             )
@@ -47,9 +47,6 @@ class Users(Resource):
 
 
 class Login(Resource):
-    """
-    User Login Resource
-    """
     def post(self):
         # get the post data
         user_data = json.loads(codecs.decode(request.data))
@@ -58,10 +55,9 @@ class Login(Resource):
             print(user_data)
             user = json.loads(User.objects(login=user_data['login']).to_json())[0]
 
-            print(user)
             if not user:
                 raise Exception('No such user')
-            if user['password'] != user_data['password']:
+            if user['password'] != User.hash_password(user_data['password']):
                 raise Exception('Wrong password')
             auth_token = User.encode_auth_token(user['login'])
             if auth_token:
@@ -79,7 +75,41 @@ class Login(Resource):
         except Exception as e:
             print(e)
             return Response(
-                response=json.dumps({'error': 'e'}),
+                response=json.dumps({'error': str(e)}),
+                status=400,
+                mimetype='application/json'
+            )
+
+
+def get_login_from_jwt(request):
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        auth_token = auth_header.split(" ")[1]
+    else:
+        auth_token = ''
+    return User.decode_auth_token(auth_token)
+
+
+class Self(Resource):
+    def get(self):
+        try:
+            resp = get_login_from_jwt(request)
+            print(resp)
+            user = User.objects(login=resp)
+            print(user)
+            if not user:
+                raise Exception("No such user")
+            responseObj = user.to_json()
+
+            return Response(
+                response=responseObj,
+                status=200,
+                mimetype='application/json'
+            )
+        except Exception as e:
+            print(e)
+            return Response(
+                response=json.dumps({'error': str(e)}),
                 status=400,
                 mimetype='application/json'
             )
@@ -87,6 +117,8 @@ class Login(Resource):
 
 api.add_resource(Users, '/users', methods=['GET', 'POST'])
 api.add_resource(Login, '/login', methods=['POST'])
+api.add_resource(Self, '/self', methods=['GET'])
+
 
 
 if __name__ == '__main__':
