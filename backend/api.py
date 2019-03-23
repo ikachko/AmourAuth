@@ -30,7 +30,10 @@ class Users(Resource):
                 password=User.hash_password(user_data['password']),
                 email=user_data['email'],
                 name=user_data['name'],
-                surname=user_data['surname'])
+                surname=user_data['surname'],
+                passport_pic_url=user_data['passport_pic_url']
+            )
+
             user.save()
         except Exception as e:
             return Response(

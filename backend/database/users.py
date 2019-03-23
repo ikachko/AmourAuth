@@ -27,6 +27,9 @@ class User(Document):
     password = StringField(max_length=500, required=True)
     name = StringField(max_length=200, required=True)
     surname = StringField(max_length=200, required=True)
+    passport_pic_url = URLField()
+    profile_pic_url = URLField()
+    account_confirmed = BooleanField(required=True, default=False)
 
     @staticmethod
     def encode_auth_token(login):
