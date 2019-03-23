@@ -123,6 +123,10 @@ api.add_resource(Login, '/login', methods=['POST'])
 api.add_resource(Self, '/self', methods=['GET'])
 
 
-
-if __name__ == '__main__':
-    app.run(host=API_HOST, port=API_PORT)
+# def run_api():
+#     print(API_PORT, API_HOST)
+#     app.run(host=API_HOST, port=API_PORT)
+#
+#
+# if __name__ == '__main__':
+#     run_api()
