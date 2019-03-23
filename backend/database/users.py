@@ -6,14 +6,13 @@ from credentials import username, password, secret_key
 import datetime
 import jwt
 
-# connect('mongodb://%s:%s@ds121636.mlab.com:21636/amour_auth' % (username, password))
-
 connect(
     db='test',
-    username='user',
-    password='12345',
+    username=username,
+    password=password,
     host='mongodb://%s:%s@ds121636.mlab.com:21636/amour_auth' % (username, password)
 )
+
 
 
 class User(Document):
