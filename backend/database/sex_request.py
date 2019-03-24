@@ -25,3 +25,4 @@ class SexRequest(Document):
 
     initiator_signature = StringField(max_length=500)
     partner_signature = StringField(max_length=500)
+    contract_record_id = StringField(max_length=100)

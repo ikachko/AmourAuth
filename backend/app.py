@@ -4,13 +4,15 @@ import json
 from flask_restful import Resource, Api, request
 from flask import Flask, Response
 from settings import API_HOST, API_PORT
-
-
+from crypto_management.sign_messages import SignFormer
+from crypto_management.contract_interaction import  ContractHandler
+from web3 import Web3
 from database import User, OnlineTime, SexRequest, SexRecord
 
 app = Flask(__name__)
 api = Api(app)
 
+contract_handler = ContractHandler()
 
 class Users(Resource):
     def get(self):
@@ -276,9 +278,28 @@ class RequestRespond(Resource):
                 set__pending=False,
                 set__confirmed=request_data['response'],
             )
-            if request_data['response']:
+            if request_data['response'] == True:
                 SexRequest.objects(id=request_data['request_id']).update_one(
                     set__partner_signature=request_data['partner_signature']
+                )
+                request_to_respond = json.loads(request_to_respond.to_json())[0]
+                print(request_to_respond)
+
+                sign_former = SignFormer(
+                    [request_to_respond['initiator'], request_to_respond['partner']]
+                )
+
+                initiator_address = User.objects(login=request_to_respond['initiator'])[0].address
+                partner_address = User.objects(login=request_to_respond['partner'])[0].address
+
+                sign_former.add_sign(request_to_respond['initiator'], initiator_address, request_to_respond['initiator_signature'])
+                sign_former.add_sign(request_to_respond['partner'], partner_address, request_to_respond['partner_signature'])
+
+                id, addresses, signatures, timestamp = sign_former.form_array_for_contract()
+                addresses = [Web3.toChecksumAddress(x[2:]) for x in addresses]
+                contract_handler.create_agreement(addresses, signatures, timestamp, id)
+                SexRequest.objects(id=request_data['request_id']).update_one(
+                    set__contract_record_id=str(id)
                 )
 
             return Response(
@@ -295,6 +316,7 @@ class RequestRespond(Resource):
                 mimetype='application/json'
             )
 
+# 5c9758cdb172ef1acfc282b9
 
 api.add_resource(Users, '/users', methods=['GET', 'POST'])
 api.add_resource(UserProfilePicture, '/users/profile_picture', methods=['POST'])
@@ -314,3 +336,6 @@ if __name__ == '__main__':
 
 # bob
 # Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NTM0NzA3OTksImlhdCI6MTU1MzM4NDM5OSwic3ViIjoiYm9iIn0.b5T52P5SEJSf-kBT6nT_OGb9CffWJNQlZ2O6qTi9ya4
+
+# carol
+# Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NTM1MDkxMDcsImlhdCI6MTU1MzQyMjcwNywic3ViIjoiY2Fyb2wifQ.VZMh0a4dMRRyHmNN8ArOB4AbQ7J9ukSLnWFK9-W3om4

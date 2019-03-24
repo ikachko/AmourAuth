@@ -3,7 +3,7 @@ from os import path
 import json
 import time
 
-from backend.crypto_management.sign_messages import *
+from crypto_management.sign_messages import *
 
 CONTRACT_ADDRESS = '02b0f54ee9b7fa0665ee42d41813edea8941cd8d'
 MASTER_PRIVKEY = "0x3953B6E3DD94D5A5D3B342656EC60F48BB44AFC64E78F7CD50918AD2337B44DE"
