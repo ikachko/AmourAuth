@@ -13,8 +13,11 @@ connect(
 )
 
 
-class User(Document):
+class OnlineTime(Document):
     meta = {
-        'collection': 'locations'
+        'collection': 'online_time'
     }
+
+    login = StringField(max_length=20, required=True, unique=True)
+    timestamp = IntField(required=True)
 
