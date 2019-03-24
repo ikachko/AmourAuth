@@ -5,7 +5,7 @@ import time
 
 from backend.crypto_management.sign_messages import *
 
-CONTRACT_ADDRESS = '434bace37102880a5e796254866be232570a4331'
+CONTRACT_ADDRESS = '02b0f54ee9b7fa0665ee42d41813edea8941cd8d'
 INFURA_URL = 'http://ropsten.infura.io/'
 
 class ContractHandler:
@@ -34,7 +34,7 @@ class ContractHandler:
         addresses,
         signatures,
         int(timestamp)).buildTransaction({
-        'gas': 300000,
+        'gas': 1000000,
         'gasPrice': self.web3.toWei('1', 'gwei'),
         "from": Web3.toChecksumAddress('F4B5dbF1BC65cA8897a4e375ee42046765551D9F'),
         'nonce': self.web3.eth.getTransactionCount(Web3.toChecksumAddress('F4B5dbF1BC65cA8897a4e375ee42046765551D9F'))
@@ -46,7 +46,7 @@ class ContractHandler:
         unicorn_txn = self.contract.functions.getAgreementResult(
         id,
         addresses).buildTransaction({
-        'gas': 3000000,
+        'gas': 1000000,
         'gasPrice': self.web3.toWei('1', 'gwei'),
         "from": Web3.toChecksumAddress('F4B5dbF1BC65cA8897a4e375ee42046765551D9F'),
         'nonce': self.web3.eth.getTransactionCount(Web3.toChecksumAddress('F4B5dbF1BC65cA8897a4e375ee42046765551D9F'))
@@ -70,7 +70,7 @@ class ContractHandler:
         id,
         addresses,
         int(timestamp)).buildTransaction({
-        'gas': 3000000,
+        'gas': 1000000,
         'gasPrice': self.web3.toWei('1', 'gwei'),
         "from": Web3.toChecksumAddress('F4B5dbF1BC65cA8897a4e375ee42046765551D9F'),
         'nonce': self.web3.eth.getTransactionCount(Web3.toChecksumAddress('F4B5dbF1BC65cA8897a4e375ee42046765551D9F'))
@@ -139,8 +139,8 @@ if __name__ == '__main__':
     id, addresses, signatures, timestamp = signs.form_array_for_contract()
     print(signatures)
     addresses = [Web3.toChecksumAddress(x[2:]) for x in addresses]
-    signatures = [int(x / pow(10, 100)) for x in signatures]
-    print(signatures)
+    #signatures = [Web3.toBytes(hexstr=x) for x in signatures]
+    #print(signatures)
 
     contract = ContractHandler(CONTRACT_ADDRESS)
     contract.create_agreement(addresses, signatures, timestamp, id)
