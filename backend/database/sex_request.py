@@ -1,3 +1,5 @@
+import time
+
 from mongoengine import *
 from credentials import username, password
 
@@ -15,11 +17,11 @@ class SexRequest(Document):
         'collection': 'sex_request'
     }
 
-    initiator = StringField(max_length=20, required=True, unique=True)
-    partner = StringField(max_length=20, required=True, unique=True)
-    timestamp = IntField(required=True)
+    initiator = StringField(max_length=20, required=True)
+    partner = StringField(max_length=20, required=True)
+    timestamp = IntField(required=True, default=time.time())
     confirmed = BooleanField(required=True, default=False)
-    rejected = BooleanField(required=True, default=False)
+    pending = BooleanField(required=True, default=True)
 
-    initiator_signature = StringField(max_length=500, required=True)
-    partner_signature = StringField(max_length=500, required=True)
+    initiator_signature = StringField(max_length=500)
+    partner_signature = StringField(max_length=500)
