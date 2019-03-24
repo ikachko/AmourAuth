@@ -331,7 +331,7 @@ class Signature(Resource):
             signature = form_sign_from_login(resp, [request_data['partner']], request_data['private_key'])
             return Response(
                 response=json.dumps({
-                    "signature": signature
+                    "signature": signature[2]
                 }),
                 status=200,
                 mimetype='application/json'
