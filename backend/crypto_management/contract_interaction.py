@@ -17,6 +17,15 @@ class ContractHandler:
             self.abi = json.load(abi_definition)
         self.contract = self.web3.eth.contract(address=self.contract_address, abi=self.abi)
 
+    def handle_event(self, event):
+        print(event)
+
+    def log_loop(self, event_filter, poll_interval):
+        while True:
+            for event in event_filter.get_new_entries():
+                self.handle_event(event)
+                time.sleep(poll_interval)
+
     def create_agreement(self, addresses, signatures, timestamp, id):
         unicorn_txn = self.contract.functions.createAgreement(
         id,
@@ -42,6 +51,17 @@ class ContractHandler:
         })
         signed_txn = self.web3.eth.account.defaultAccount.signTransaction(unicorn_txn)
         res = self.web3.eth.sendRawTransaction(signed_txn.rawTransaction)
+        time.sleep(10)
+        not_found = True
+        while (not_found):
+            try:
+                time.sleep(10)
+                receipt = self.web3.eth.getTransactionReceipt(res)
+                event_filter = self.contract.events.AgreementsReturn().processReceipt(receipt)
+                print(event_filter)
+                not_found = False
+            except:
+                pass
 
     def get_special_agreements(self, addresses, timestamp, id):
         unicorn_txn = self.contract.functions.getSpecialAgreementResult(
@@ -55,12 +75,22 @@ class ContractHandler:
         })
         signed_txn = self.web3.eth.account.defaultAccount.signTransaction(unicorn_txn)
         res = self.web3.eth.sendRawTransaction(signed_txn.rawTransaction)
+        not_found = True
+        while (not_found):
+            try:
+                time.sleep(10)
+                receipt = self.web3.eth.getTransactionReceipt(res)
+                event_filter = self.contract.events.SpecialAgreementReturn().processReceipt(receipt)
+                print(event_filter)
+                not_found = False
+            except:
+                pass
 
 if __name__ == '__main__':
     pass
-    #contract = ContractHandler("45c08ad1a51579a435c1c91bc868bb2116e1fc73")
+    contract = ContractHandler("b665c565737aa50cbcb0807a4e51f12f88d56902")
     #contract.create_agreement([Web3.toChecksumAddress("14723a09acff6d2a60dcdf7aa4aff308fddc160c"),Web3.toChecksumAddress("583031d1113ad414f02576bd6afabfb302140225")],[423432,43242], 1355563265, 11)
-    #contract.get_all_agreements([Web3.toChecksumAddress("14723a09acff6d2a60dcdf7aa4aff308fddc160c"),Web3.toChecksumAddress("583031d1113ad414f02576bd6afabfb302140225")], 11)
+    contract.get_all_agreements([Web3.toChecksumAddress("14723a09acff6d2a60dcdf7aa4aff308fddc160c"),Web3.toChecksumAddress("583031d1113ad414f02576bd6afabfb302140225")], 11)
     #contract.get_special_agreements([Web3.toChecksumAddress("14723a09acff6d2a60dcdf7aa4aff308fddc160c"),Web3.toChecksumAddress("583031d1113ad414f02576bd6afabfb302140225")], 1355563265, 11)
 
 # dir_path = path.dirname(path.realpath(__file__))
