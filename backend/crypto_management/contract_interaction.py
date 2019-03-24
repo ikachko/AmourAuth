@@ -6,13 +6,15 @@ import time
 from backend.crypto_management.sign_messages import *
 
 CONTRACT_ADDRESS = '02b0f54ee9b7fa0665ee42d41813edea8941cd8d'
+MASTER_PRIVKEY = "0x3953B6E3DD94D5A5D3B342656EC60F48BB44AFC64E78F7CD50918AD2337B44DE"
+MASTER_ACCOUNT_ADDRESS = "F4B5dbF1BC65cA8897a4e375ee42046765551D9F"
 INFURA_URL = 'http://ropsten.infura.io/'
 
 class ContractHandler:
     def __init__(self, contract_address):
         self.web3 = Web3(HTTPProvider("https://ropsten.infura.io/v3/512b45c586ea4b3f9ab564ac910e20f0"))
         self.contract_address = Web3.toChecksumAddress(contract_address)
-        v = self.web3.eth.account.privateKeyToAccount('0x3953B6E3DD94D5A5D3B342656EC60F48BB44AFC64E78F7CD50918AD2337B44DE')
+        v = self.web3.eth.account.privateKeyToAccount(MASTER_PRIVKEY)
         self.web3.eth.account.defaultAccount = v
         dir_path = path.dirname(path.realpath(__file__))
         with open(str(path.join(dir_path, 'contract_abi.json')), 'r') as abi_definition:
@@ -36,8 +38,8 @@ class ContractHandler:
         int(timestamp)).buildTransaction({
         'gas': 1000000,
         'gasPrice': self.web3.toWei('1', 'gwei'),
-        "from": Web3.toChecksumAddress('F4B5dbF1BC65cA8897a4e375ee42046765551D9F'),
-        'nonce': self.web3.eth.getTransactionCount(Web3.toChecksumAddress('F4B5dbF1BC65cA8897a4e375ee42046765551D9F'))
+        "from": Web3.toChecksumAddress(MASTER_ACCOUNT_ADDRESS),
+        'nonce': self.web3.eth.getTransactionCount(Web3.toChecksumAddress(MASTER_ACCOUNT_ADDRESS))
         })
         signed_txn = self.web3.eth.account.defaultAccount.signTransaction(unicorn_txn)
         self.web3.eth.sendRawTransaction(signed_txn.rawTransaction)
@@ -48,8 +50,8 @@ class ContractHandler:
         addresses).buildTransaction({
         'gas': 1000000,
         'gasPrice': self.web3.toWei('1', 'gwei'),
-        "from": Web3.toChecksumAddress('F4B5dbF1BC65cA8897a4e375ee42046765551D9F'),
-        'nonce': self.web3.eth.getTransactionCount(Web3.toChecksumAddress('F4B5dbF1BC65cA8897a4e375ee42046765551D9F'))
+        "from": Web3.toChecksumAddress(MASTER_ACCOUNT_ADDRESS),
+        'nonce': self.web3.eth.getTransactionCount(Web3.toChecksumAddress(MASTER_ACCOUNT_ADDRESS))
         })
         signed_txn = self.web3.eth.account.defaultAccount.signTransaction(unicorn_txn)
         res = self.web3.eth.sendRawTransaction(signed_txn.rawTransaction)
@@ -72,8 +74,8 @@ class ContractHandler:
         int(timestamp)).buildTransaction({
         'gas': 1000000,
         'gasPrice': self.web3.toWei('1', 'gwei'),
-        "from": Web3.toChecksumAddress('F4B5dbF1BC65cA8897a4e375ee42046765551D9F'),
-        'nonce': self.web3.eth.getTransactionCount(Web3.toChecksumAddress('F4B5dbF1BC65cA8897a4e375ee42046765551D9F'))
+        "from": Web3.toChecksumAddress(MASTER_ACCOUNT_ADDRESS),
+        'nonce': self.web3.eth.getTransactionCount(Web3.toChecksumAddress(MASTER_ACCOUNT_ADDRESS))
         })
         signed_txn = self.web3.eth.account.defaultAccount.signTransaction(unicorn_txn)
         res = self.web3.eth.sendRawTransaction(signed_txn.rawTransaction)
