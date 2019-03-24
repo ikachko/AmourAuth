@@ -10,9 +10,9 @@ connect(
 )
 
 
-class SexRequest(Document):
+class SexRecord(Document):
     meta = {
-        'collection': 'sex_request'
+        'collection': 'sex_records'
     }
 
     initiator = StringField(max_length=20, required=True, unique=True)

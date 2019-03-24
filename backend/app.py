@@ -6,7 +6,7 @@ from flask import Flask, Response
 from settings import API_HOST, API_PORT
 
 
-from database import User, OnlineTime
+from database import User, OnlineTime, SexRequest, SexRecord
 
 app = Flask(__name__)
 api = Api(app)
@@ -32,6 +32,7 @@ class Users(Resource):
                 name=user_data['name'],
                 surname=user_data['surname'],
                 passport_pic_url=user_data['passport_pic_url'],
+                profile_pic_url=user_data['profile_pic_url'],
                 address=user_data['address'],
             )
 
@@ -45,6 +46,33 @@ class Users(Resource):
 
         return Response(
             response=json.dumps({'created': True}),
+            status=200,
+            mimetype='application/json'
+        )
+
+
+class UserProfilePicture(Resource):
+    def post(self):
+        try:
+            data = json.loads(codecs.decode(request.data))
+
+            resp = get_login_from_jwt(request)
+            user = User.objects(login=resp)
+            if not user:
+                raise Exception("No such user")
+
+            User.objects(login=resp).update_one(
+                set__profile_pic_url=data['profile_pic_url']
+            )
+        except Exception as e:
+            return Response(
+                response=json.dumps({'error': str(e)}),
+                status=400,
+                mimetype='application/json'
+            )
+
+        return Response(
+            response=json.dumps({'updated': True}),
             status=200,
             mimetype='application/json'
         )
@@ -150,19 +178,105 @@ class Online(Resource):
             )
 
 
-class SexRequest(Resource):
+class Requests(Resource):
     def get(self):
-        pass
+        try:
+            resp = get_login_from_jwt(request)
+            user = User.objects(login=resp)
+            if not user:
+                raise Exception("No such user")
+
+            requests = SexRequest.objects().filter(partner=resp).filter(pending=True)
+
+            return Response(
+                response=requests.to_json(),
+                status=200,
+                mimetype='application/json'
+            )
+        except Exception as e:
+            return Response(
+                response=json.dumps({'error': str(e)}),
+                status=400,
+                mimetype='application/json'
+            )
 
     def post(self):
-        pass
+        try:
+            resp = get_login_from_jwt(request)
+            user = User.objects(login=resp)
+            if not user:
+                raise Exception("No such user")
+            request_data = json.loads(codecs.decode(request.data))
+            sex_request = SexRequest(
+                initiator=resp,
+                partner=request_data['partner'],
+                initiator_signature=request_data['initiator_signature']
+            )
+            sex_request.save()
+            print(sex_request.id)
 
+            return Response(
+                response= json.dumps({
+                    'created': True,
+                    'request_id': str(sex_request.id),
+                }),
+                status=200,
+                mimetype='application/json'
+            )
+        except Exception as e:
+            return Response(
+                response=json.dumps({'error': str(e)}),
+                status=400,
+                mimetype='application/json'
+            )
+
+
+class RequestRespond(Resource):
+    def post(self):
+        try:
+            resp = get_login_from_jwt(request)
+            user = User.objects(login=resp)
+            if not user:
+                raise Exception("No such user")
+
+            request_data = json.loads(codecs.decode(request.data))
+            request_to_respond = SexRequest.objects().filter(id=request_data['request_id'])
+            if len(request_to_respond) == 0:
+                raise Exception("No sex request with this id")
+            if request_to_respond[0].partner != resp:
+                raise Exception("User is not a partner in this request for sex")
+
+            SexRequest.objects(id=request_data['request_id']).update_one(
+                set__pending=False,
+                set__confirmed=request_data['response'],
+            )
+            if request_data['response']:
+                SexRequest.objects(id=request_data['request_id']).update_one(
+                    set__partner_signature=request_data['partner_signature']
+                )
+
+            return Response(
+                response=json.dumps({
+                    'updated': True,
+                }),
+                status=200,
+                mimetype='application/json'
+            )
+        except Exception as e:
+            return Response(
+                response=json.dumps({'error': str(e)}),
+                status=400,
+                mimetype='application/json'
+            )
 
 
 api.add_resource(Users, '/users', methods=['GET', 'POST'])
+api.add_resource(UserProfilePicture, '/users/profile_picture', methods=['POST'])
 api.add_resource(Login, '/login', methods=['POST'])
 api.add_resource(Self, '/self', methods=['GET'])
 api.add_resource(Online, '/online', methods=['GET'])
+api.add_resource(Requests, '/sex/request', methods=['GET', 'POST'])
+api.add_resource(RequestRespond, '/sex/request/respond', methods=['POST'])
 
 
 if __name__ == '__main__':
