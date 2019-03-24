@@ -20,7 +20,7 @@ class SexRequest(Document):
     initiator = StringField(max_length=20, required=True)
     partner = StringField(max_length=20, required=True)
     timestamp = IntField(required=True, default=time.time())
-    confirmed = BooleanField(required=True, default=False)
+    confirmed = BooleanField(required=True, default=True)
     pending = BooleanField(required=True, default=True)
 
     initiator_signature = StringField(max_length=500)
