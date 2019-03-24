@@ -29,6 +29,7 @@ class User(Document):
     passport_pic_url = URLField()
     profile_pic_url = URLField()
     account_confirmed = BooleanField(required=True, default=False)
+    address = StringField(max_length=100, required=True, unique=True)
 
     @staticmethod
     def encode_auth_token(login):
