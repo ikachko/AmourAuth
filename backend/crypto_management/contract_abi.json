@@ -19,7 +19,7 @@
 		"outputs": [
 			{
 				"name": "signatures",
-				"type": "uint256[]"
+				"type": "bytes1[64][]"
 			}
 		],
 		"payable": false,
@@ -42,7 +42,7 @@
 		"outputs": [
 			{
 				"name": "",
-				"type": "uint256[]"
+				"type": "bytes1[64][]"
 			}
 		],
 		"payable": false,
@@ -104,7 +104,7 @@
 			},
 			{
 				"name": "signatures",
-				"type": "uint256[]"
+				"type": "bytes1[64][]"
 			},
 			{
 				"name": "timestamp",
@@ -134,7 +134,7 @@
 			{
 				"indexed": false,
 				"name": "AgreementsData",
-				"type": "uint256[]"
+				"type": "bytes1[64][]"
 			}
 		],
 		"name": "AgreementsReturn",
@@ -146,7 +146,7 @@
 			{
 				"indexed": false,
 				"name": "Signatures",
-				"type": "uint256[]"
+				"type": "bytes1[64][]"
 			}
 		],
 		"name": "SpecialAgreementReturn",
