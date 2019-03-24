@@ -32,6 +32,7 @@ class Users(Resource):
                 name=user_data['name'],
                 surname=user_data['surname'],
                 passport_pic_url=user_data['passport_pic_url'],
+                profile_pic_url=user_data['profile_pic_url'],
                 address=user_data['address'],
             )
 
