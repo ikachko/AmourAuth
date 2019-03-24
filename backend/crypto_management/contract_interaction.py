@@ -3,7 +3,9 @@ from os import path
 import json
 import time
 
+from backend.crypto_management.sign_messages import *
 
+CONTRACT_ADDRESS = '434bace37102880a5e796254866be232570a4331'
 INFURA_URL = 'http://ropsten.infura.io/'
 
 class ContractHandler:
@@ -31,7 +33,7 @@ class ContractHandler:
         id,
         addresses,
         signatures,
-        timestamp).buildTransaction({
+        int(timestamp)).buildTransaction({
         'gas': 300000,
         'gasPrice': self.web3.toWei('1', 'gwei'),
         "from": Web3.toChecksumAddress('F4B5dbF1BC65cA8897a4e375ee42046765551D9F'),
@@ -67,7 +69,7 @@ class ContractHandler:
         unicorn_txn = self.contract.functions.getSpecialAgreementResult(
         id,
         addresses,
-        timestamp).buildTransaction({
+        int(timestamp)).buildTransaction({
         'gas': 3000000,
         'gasPrice': self.web3.toWei('1', 'gwei'),
         "from": Web3.toChecksumAddress('F4B5dbF1BC65cA8897a4e375ee42046765551D9F'),
@@ -86,15 +88,75 @@ class ContractHandler:
             except:
                 pass
 
+# if __name__ == '__main__':
+#     users = ['ikachko', 'akondaur']
+#     ikachko_prk = 'ccebce874cf3532d2774955e5c6dd94a919de91cadca5d3c8ab86d7be34136ed'
+#     akondaur_prk = '3953B6E3DD94D5A5D3B342656EC60F48BB44AFC64E78F7CD50918AD2337B44DE'
+#
+#     ikachko_address, ikachko_timestamp, ikachko_sign = form_sign_from_login('ikachko', ['akondaur'], ikachko_prk)
+#     akondaur_address, akondaur_timestamp, akondaur_sign = form_sign_from_login('ikachko', ['akondaur'], akondaur_prk)
+#
+#     signs = SignFormer(users)
+#     signs.add_sign(users[0], ikachko_address, ikachko_sign)
+#     signs.add_sign(users[1], akondaur_address, akondaur_sign)
+#
+#     id, addresses, signatures, timestamp = signs.form_array_for_contract()
+#     print(signatures)
+#     addresses = [Web3.toChecksumAddress(x[2:]) for x in addresses]
+#     signatures = [int(x / pow(10, 100)) for x in signatures]
+#     print(signatures)
+#
+#     contract = ContractHandler(CONTRACT_ADDRESS)
+#     contract.create_agreement(addresses, signatures, timestamp, id)
+#     not_found = True
+#     while (not_found):
+#         try:
+#             time.sleep(10)
+#             contract.get_all_agreements(addresses, id)#([Web3.toChecksumAddress("14723a09acff6d2a60dcdf7aa4aff308fddc160c"),Web3.toChecksumAddress("583031d1113ad414f02576bd6afabfb302140225")], 11)
+#             not_found = False
+#         except:
+#             pass
+#     not_found = True
+#     while (not_found):
+#         try:
+#             time.sleep(10)
+#             contract.get_special_agreements(addresses, timestamp, id) #([Web3.toChecksumAddress("14723a09acff6d2a60dcdf7aa4aff308fddc160c"),Web3.toChecksumAddress("583031d1113ad414f02576bd6afabfb302140225")], 1355563265, 11)
+#             not_found = False
+#         except:
+#             pass
 if __name__ == '__main__':
-    pass
-    contract = ContractHandler("b665c565737aa50cbcb0807a4e51f12f88d56902")
-    #contract.create_agreement([Web3.toChecksumAddress("14723a09acff6d2a60dcdf7aa4aff308fddc160c"),Web3.toChecksumAddress("583031d1113ad414f02576bd6afabfb302140225")],[423432,43242], 1355563265, 11)
-    contract.get_all_agreements([Web3.toChecksumAddress("14723a09acff6d2a60dcdf7aa4aff308fddc160c"),Web3.toChecksumAddress("583031d1113ad414f02576bd6afabfb302140225")], 11)
-    #contract.get_special_agreements([Web3.toChecksumAddress("14723a09acff6d2a60dcdf7aa4aff308fddc160c"),Web3.toChecksumAddress("583031d1113ad414f02576bd6afabfb302140225")], 1355563265, 11)
+    users = ['ikachko', 'akondaur']
+    ikachko_prk = 'ccebce874cf3532d2774955e5c6dd94a919de91cadca5d3c8ab86d7be34136ed'
+    akondaur_prk = '3953B6E3DD94D5A5D3B342656EC60F48BB44AFC64E78F7CD50918AD2337B44DE'
 
-# dir_path = path.dirname(path.realpath(__file__))
-# web3 = Web3(HTTPProvider("https://ropsten.infura.io/v3/52a597c1982940f0b7367628415eeb8d"))
-# with open(str(path.join(dir_path, 'contract_abi.json')), 'r') as abi_definition:
-    # abi = json.load(abi_definition)
-# contract = web3.eth.contract(abi, contract_address)
+    ikachko_address, ikachko_timestamp, ikachko_sign = form_sign_from_login('ikachko', ['akondaur'], ikachko_prk)
+    akondaur_address, akondaur_timestamp, akondaur_sign = form_sign_from_login('ikachko', ['akondaur'], akondaur_prk)
+
+    signs = SignFormer(users)
+    signs.add_sign(users[0], ikachko_address, ikachko_sign)
+    signs.add_sign(users[1], akondaur_address, akondaur_sign)
+
+    id, addresses, signatures, timestamp = signs.form_array_for_contract()
+    print(signatures)
+    addresses = [Web3.toChecksumAddress(x[2:]) for x in addresses]
+    signatures = [int(x / pow(10, 100)) for x in signatures]
+    print(signatures)
+
+    contract = ContractHandler(CONTRACT_ADDRESS)
+    contract.create_agreement(addresses, signatures, timestamp, id)
+    not_found = True
+    while (not_found):
+        try:
+            time.sleep(10)
+            contract.get_all_agreements(addresses, id)#([Web3.toChecksumAddress("14723a09acff6d2a60dcdf7aa4aff308fddc160c"),Web3.toChecksumAddress("583031d1113ad414f02576bd6afabfb302140225")], 11)
+            not_found = False
+        except:
+            pass
+    not_found = True
+    while (not_found):
+        try:
+            time.sleep(10)
+            contract.get_special_agreements(addresses, timestamp, id) #([Web3.toChecksumAddress("14723a09acff6d2a60dcdf7aa4aff308fddc160c"),Web3.toChecksumAddress("583031d1113ad414f02576bd6afabfb302140225")], 1355563265, 11)
+            not_found = False
+        except:
+            pass

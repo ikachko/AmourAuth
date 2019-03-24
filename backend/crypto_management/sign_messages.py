@@ -10,8 +10,8 @@ from Crypto.Hash import keccak
 class EthereumWallet:
     @staticmethod
     def generate_address(private_key):
-        public_key = EthereumWallet.__private_to_public(private_key)
-        address = EthereumWallet.__public_to_address(public_key)
+        public_key = EthereumWallet.private_to_public(private_key)
+        address = EthereumWallet.public_to_address(public_key)
         return address
 
     @staticmethod
@@ -32,7 +32,7 @@ class EthereumWallet:
         return checksum
 
     @staticmethod
-    def __private_to_public(private_key):
+    def private_to_public(private_key):
         private_key_bytes = codecs.decode(private_key, 'hex')
         key = ecdsa.SigningKey.from_string(private_key_bytes, curve=ecdsa.SECP256k1).verifying_key
         key_bytes = key.to_string()
@@ -40,7 +40,7 @@ class EthereumWallet:
         return public_key
 
     @staticmethod
-    def __public_to_address(public_key):
+    def public_to_address(public_key):
         public_key_bytes = codecs.decode(public_key, 'hex')
         keccak_hash = keccak.new(digest_bits=256)
         keccak_hash.update(public_key_bytes)
@@ -84,7 +84,12 @@ class KeyManager:
         key_bytes = codecs.decode(private_key, 'hex')
         sk = ecdsa.SigningKey.from_string(key_bytes, curve=ecdsa.SECP256k1)
         signed_msg = sk.sign(message.encode('utf-8'))
-        return signed_msg.hex()
+        return signed_msg
+
+    @staticmethod
+    def verify_message(message, public_key, signature):
+        vk = True#ecdsa.VerifyingKey.from_string(bytes.fromhex(public_key[2:]), curve=ecdsa.SECP256k1)
+        return (vk)#.verify(bytes.fromhex(signature), message.encode('utf-8')))
 
     @staticmethod
     def public_key_to_addr(key):
@@ -136,11 +141,12 @@ class SignFormer:
 
     def form_array_for_contract(self):
         if self.sign_count == len(self.users) and False not in [self.already_signed[login] for login in self.users]:
-            int_signs = [int(sign, 16) for sign in self.signs]
+            # int_signs = [int(sign, 16) for sign in self.signs]
             address_concat = ''.join([addr[2:] for addr in self.addresses])
             address_hash = hashlib.sha256(binascii.unhexlify(address_concat)).hexdigest()
             int_address = int(address_hash, 16)
-            return int_address, self.addresses, int_signs, self.timestamp
+
+            return int_address, self.addresses, self.signs, self.timestamp
 
 users = ['ikachko', 'akondaur']
 ikachko_prk = 'ccebce874cf3532d2774955e5c6dd94a919de91cadca5d3c8ab86d7be34136ed'
@@ -156,3 +162,5 @@ signs.add_sign(users[1], akondaur_address, akondaur_sign)
 
 contract_array = signs.form_array_for_contract()
 print(contract_array)
+verify_1 = KeyManager.verify_message(ikachko_sign, EthereumWallet.private_to_public(ikachko_prk), ikachko_sign)
+print(verify_1)
