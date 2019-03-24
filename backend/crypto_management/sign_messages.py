@@ -137,8 +137,22 @@ class SignFormer:
     def form_array_for_contract(self):
         if self.sign_count == len(self.users) and False not in [self.already_signed[login] for login in self.users]:
             int_signs = [int(sign, 16) for sign in self.signs]
-            address_concat = ''.join(self.addresses)
+            address_concat = ''.join([addr[2:] for addr in self.addresses])
             address_hash = hashlib.sha256(binascii.unhexlify(address_concat)).hexdigest()
             int_address = int(address_hash, 16)
             return int_address, self.addresses, int_signs, self.timestamp
 
+users = ['ikachko', 'akondaur']
+ikachko_prk = 'ccebce874cf3532d2774955e5c6dd94a919de91cadca5d3c8ab86d7be34136ed'
+akondaur_prk = '3953B6E3DD94D5A5D3B342656EC60F48BB44AFC64E78F7CD50918AD2337B44DE'
+
+ikachko_address, ikachko_timestamp, ikachko_sign = form_sign_from_login('ikachko', ['akondaur'], ikachko_prk)
+akondaur_address, akondaur_timestamp, akondaur_sign = form_sign_from_login('ikachko', ['akondaur'], akondaur_prk)
+
+
+signs = SignFormer(users)
+signs.add_sign(users[0], ikachko_address, ikachko_sign)
+signs.add_sign(users[1], akondaur_address, akondaur_sign)
+
+contract_array = signs.form_array_for_contract()
+print(contract_array)
