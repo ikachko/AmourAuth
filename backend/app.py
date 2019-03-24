@@ -128,7 +128,7 @@ class Self(Resource):
             user = User.objects(login=resp)
             if not user:
                 raise Exception("No such user")
-            responseObj = user.to_json()
+            responseObj = user[0].to_json()
 
             return Response(
                 response=responseObj,
@@ -231,6 +231,32 @@ class Requests(Resource):
             )
 
 
+class RequestsHistory(Resource):
+    def get(self):
+        try:
+            resp = get_login_from_jwt(request)
+            user = User.objects(login=resp)
+            if not user:
+                raise Exception("No such user")
+
+            resp_object ={
+                'initiated': json.loads(SexRequest.objects().filter(initiator=resp).to_json()),
+                'requested_for': json.loads(SexRequest.objects().filter(partner=resp).to_json()),
+            }
+
+            return Response(
+                response=json.dumps(resp_object),
+                status=200,
+                mimetype='application/json'
+            )
+        except Exception as e:
+            return Response(
+                response=json.dumps({'error': str(e)}),
+                status=400,
+                mimetype='application/json'
+            )
+
+
 class RequestRespond(Resource):
     def post(self):
         try:
@@ -276,6 +302,7 @@ api.add_resource(Login, '/login', methods=['POST'])
 api.add_resource(Self, '/self', methods=['GET'])
 api.add_resource(Online, '/online', methods=['GET'])
 api.add_resource(Requests, '/sex/request', methods=['GET', 'POST'])
+api.add_resource(RequestsHistory, '/sex/history', methods=['GET'])
 api.add_resource(RequestRespond, '/sex/request/respond', methods=['POST'])
 
 
@@ -283,7 +310,7 @@ if __name__ == '__main__':
     app.run(host=API_HOST, port=API_PORT)
 
 # alise
-# Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NTM0NzA3NjYsImlhdCI6MTU1MzM4NDM2Niwic3ViIjoiYWxpc2UifQ.UBKPTaFXE8sdEdc5LJE1pd7X6Udjh2P5stTyJGIPaDg
+#
 
 # bob
 # Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NTM0NzA3OTksImlhdCI6MTU1MzM4NDM5OSwic3ViIjoiYm9iIn0.b5T52P5SEJSf-kBT6nT_OGb9CffWJNQlZ2O6qTi9ya4

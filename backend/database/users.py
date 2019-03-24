@@ -59,9 +59,7 @@ class User(Document):
 
     @staticmethod
     def hash_password(password):
-        print(password)
         res = hashlib.sha256(codecs.encode(password, 'ascii')).hexdigest()
-        print(res)
         return res
 
 
