@@ -4,7 +4,7 @@ import json
 from flask_restful import Resource, Api, request
 from flask import Flask, Response
 from settings import API_HOST, API_PORT
-from crypto_management.sign_messages import SignFormer
+from crypto_management.sign_messages import SignFormer, form_sign_from_login
 from crypto_management.contract_interaction import  ContractHandler
 from web3 import Web3
 from database import User, OnlineTime, SexRequest, SexRecord
@@ -296,6 +296,8 @@ class RequestRespond(Resource):
                 sign_former.add_sign(request_to_respond['partner'], partner_address, request_to_respond['partner_signature'])
 
                 id, addresses, signatures, timestamp = sign_former.form_array_for_contract()
+
+                # print(id, addresses, signatures, timestamp)
                 addresses = [Web3.toChecksumAddress(x[2:]) for x in addresses]
                 contract_handler.create_agreement(addresses, signatures, timestamp, id)
                 SexRequest.objects(id=request_data['request_id']).update_one(
@@ -316,7 +318,33 @@ class RequestRespond(Resource):
                 mimetype='application/json'
             )
 
-# 5c9758cdb172ef1acfc282b9
+
+class Signature(Resource):
+    def post(self):
+        try:
+            resp = get_login_from_jwt(request)
+            user = User.objects(login=resp)
+            if not user:
+                raise Exception("No such user")
+            request_data = json.loads(codecs.decode(request.data))
+
+            signature = form_sign_from_login(resp, [request_data['partner']], request_data['private_key'])
+            return Response(
+                response=json.dumps({
+                    "signature": signature
+                }),
+                status=200,
+                mimetype='application/json'
+            )
+        except Exception as e:
+            return Response(
+                response=json.dumps({'error': str(e)}),
+                status=400,
+                mimetype='application/json'
+            )
+
+
+
 
 api.add_resource(Users, '/users', methods=['GET', 'POST'])
 api.add_resource(UserProfilePicture, '/users/profile_picture', methods=['POST'])
@@ -326,6 +354,7 @@ api.add_resource(Online, '/online', methods=['GET'])
 api.add_resource(Requests, '/sex/request', methods=['GET', 'POST'])
 api.add_resource(RequestsHistory, '/sex/history', methods=['GET'])
 api.add_resource(RequestRespond, '/sex/request/respond', methods=['POST'])
+api.add_resource(Signature, '/signature', methods=['POST'])
 
 
 if __name__ == '__main__':
