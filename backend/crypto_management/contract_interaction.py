@@ -11,7 +11,7 @@ MASTER_ACCOUNT_ADDRESS = "F4B5dbF1BC65cA8897a4e375ee42046765551D9F"
 INFURA_URL = 'http://ropsten.infura.io/'
 
 class ContractHandler:
-    def __init__(self, contract_address):
+    def __init__(self, contract_address='02b0f54ee9b7fa0665ee42d41813edea8941cd8d'):
         self.web3 = Web3(HTTPProvider("https://ropsten.infura.io/v3/512b45c586ea4b3f9ab564ac910e20f0"))
         self.contract_address = Web3.toChecksumAddress(contract_address)
         v = self.web3.eth.account.privateKeyToAccount(MASTER_PRIVKEY)
@@ -126,39 +126,39 @@ class ContractHandler:
 #             not_found = False
 #         except:
 #             pass
-if __name__ == '__main__':
-    users = ['ikachko', 'akondaur']
-    ikachko_prk = 'ccebce874cf3532d2774955e5c6dd94a919de91cadca5d3c8ab86d7be34136ed'
-    akondaur_prk = '3953B6E3DD94D5A5D3B342656EC60F48BB44AFC64E78F7CD50918AD2337B44DE'
-
-    ikachko_address, ikachko_timestamp, ikachko_sign = form_sign_from_login('ikachko', ['akondaur'], ikachko_prk)
-    akondaur_address, akondaur_timestamp, akondaur_sign = form_sign_from_login('ikachko', ['akondaur'], akondaur_prk)
-
-    signs = SignFormer(users)
-    signs.add_sign(users[0], ikachko_address, ikachko_sign)
-    signs.add_sign(users[1], akondaur_address, akondaur_sign)
-
-    id, addresses, signatures, timestamp = signs.form_array_for_contract()
-    print(signatures)
-    addresses = [Web3.toChecksumAddress(x[2:]) for x in addresses]
-    #signatures = [Web3.toBytes(hexstr=x) for x in signatures]
-    #print(signatures)
-
-    contract = ContractHandler(CONTRACT_ADDRESS)
-    contract.create_agreement(addresses, signatures, timestamp, id)
-    not_found = True
-    while (not_found):
-        try:
-            time.sleep(10)
-            contract.get_all_agreements(addresses, id)#([Web3.toChecksumAddress("14723a09acff6d2a60dcdf7aa4aff308fddc160c"),Web3.toChecksumAddress("583031d1113ad414f02576bd6afabfb302140225")], 11)
-            not_found = False
-        except:
-            pass
-    not_found = True
-    while (not_found):
-        try:
-            time.sleep(10)
-            contract.get_special_agreements(addresses, timestamp, id) #([Web3.toChecksumAddress("14723a09acff6d2a60dcdf7aa4aff308fddc160c"),Web3.toChecksumAddress("583031d1113ad414f02576bd6afabfb302140225")], 1355563265, 11)
-            not_found = False
-        except:
-            pass
+# if __name__ == '__main__':
+#     users = ['ikachko', 'akondaur']
+#     ikachko_prk = 'ccebce874cf3532d2774955e5c6dd94a919de91cadca5d3c8ab86d7be34136ed'
+#     akondaur_prk = '3953B6E3DD94D5A5D3B342656EC60F48BB44AFC64E78F7CD50918AD2337B44DE'
+#
+#     ikachko_address, ikachko_timestamp, ikachko_sign = form_sign_from_login('ikachko', ['akondaur'], ikachko_prk)
+#     akondaur_address, akondaur_timestamp, akondaur_sign = form_sign_from_login('ikachko', ['akondaur'], akondaur_prk)
+#
+#     signs = SignFormer(users)
+#     signs.add_sign(users[0], ikachko_address, ikachko_sign)
+#     signs.add_sign(users[1], akondaur_address, akondaur_sign)
+#
+#     id, addresses, signatures, timestamp = signs.form_array_for_contract()
+#     print(signatures)
+#     addresses = [Web3.toChecksumAddress(x[2:]) for x in addresses]
+#     #signatures = [Web3.toBytes(hexstr=x) for x in signatures]
+#     #print(signatures)
+#
+#     contract = ContractHandler(CONTRACT_ADDRESS)
+#     contract.create_agreement(addresses, signatures, timestamp, id)
+#     not_found = True
+#     while (not_found):
+#         try:
+#             time.sleep(10)
+#             contract.get_all_agreements(addresses, id)#([Web3.toChecksumAddress("14723a09acff6d2a60dcdf7aa4aff308fddc160c"),Web3.toChecksumAddress("583031d1113ad414f02576bd6afabfb302140225")], 11)
+#             not_found = False
+#         except:
+#             pass
+#     not_found = True
+#     while (not_found):
+#         try:
+#             time.sleep(10)
+#             contract.get_special_agreements(addresses, timestamp, id) #([Web3.toChecksumAddress("14723a09acff6d2a60dcdf7aa4aff308fddc160c"),Web3.toChecksumAddress("583031d1113ad414f02576bd6afabfb302140225")], 1355563265, 11)
+#             not_found = False
+#         except:
+#             pass
