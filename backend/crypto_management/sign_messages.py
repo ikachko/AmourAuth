@@ -84,7 +84,7 @@ class KeyManager:
         key_bytes = codecs.decode(private_key, 'hex')
         sk = ecdsa.SigningKey.from_string(key_bytes, curve=ecdsa.SECP256k1)
         signed_msg = sk.sign(message.encode('utf-8'))
-        return signed_msg
+        return signed_msg.hex()
 
     @staticmethod
     def verify_message(message, public_key, signature):
