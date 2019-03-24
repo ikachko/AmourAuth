@@ -1,14 +1,12 @@
 import codecs
 import time
 import json
-from flask_restful import Resource, Api, reqparse, request
+from flask_restful import Resource, Api, request
 from flask import Flask, Response
 from settings import API_HOST, API_PORT
-from pymongo import MongoClient
-from credentials import username, password
 
-from database.users import User
-from database.locations import OnlineTime
+
+from database import User, OnlineTime
 
 app = Flask(__name__)
 api = Api(app)
@@ -33,7 +31,8 @@ class Users(Resource):
                 email=user_data['email'],
                 name=user_data['name'],
                 surname=user_data['surname'],
-                passport_pic_url=user_data['passport_pic_url']
+                passport_pic_url=user_data['passport_pic_url'],
+                address=user_data['address'],
             )
 
             user.save()
@@ -57,7 +56,6 @@ class Login(Resource):
         user_data = json.loads(codecs.decode(request.data))
 
         try:
-            print(user_data)
             user = json.loads(User.objects(login=user_data['login']).to_json())[0]
 
             if not user:
@@ -150,6 +148,15 @@ class Online(Resource):
                 status=400,
                 mimetype='application/json'
             )
+
+
+class SexRequest(Resource):
+    def get(self):
+        pass
+
+    def post(self):
+        pass
+
 
 
 api.add_resource(Users, '/users', methods=['GET', 'POST'])

@@ -1,8 +1,5 @@
-import codecs
-import hashlib
-
 from mongoengine import *
-from credentials import username, password, secret_key
+from credentials import username, password
 
 
 connect(
